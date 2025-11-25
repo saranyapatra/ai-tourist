@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tourist Guide</title>
+    <style>
+        /* Keyframe Animation for Button Pulse */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 168, 122, 0.4); } 
+            70% { box-shadow: 0 0 0 10px rgba(0, 168, 122, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 168, 122, 0); }
+        }
+
+        /* ------------------------------------- */
+        /* BASE & BACKGROUND                     */
+        /* ------------------------------------- */
+        body {
+            font-family: 'Poppins', sans-serif; 
+            margin: 0;
+            padding: 0;
+            /* Blue gradient for glassmorphism effect */
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ------------------------------------- */
+        /* GLASSMORHPISM CONTAINER STYLES        */
+        /* ------------------------------------- */
+        .container {
+            max-width: 750px;
+            width: 90%;
+            /* Frosted Glass Effect */
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            text-align: center;
+            color: #f0f0f0; 
+            transition: transform 0.3s ease-out;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        h1 {
+            color: #ffffff; 
+            margin-bottom: 5px;
+            font-size: 2.8em;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        p {
+            color: #d4d4d4;
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+
+        /* ------------------------------------- */
+        /* UPLOAD SECTION                        */
+        /* ------------------------------------- */
+        .upload-section {
+            border: 3px dashed #81c784; 
+            background-color: rgba(255, 255, 255, 0.05); 
+            padding: 40px 30px;
+            margin: 30px auto;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .upload-section:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #a5d6a7;
+            transform: scale(1.02); 
+        }
+        .upload-section span {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 1.2em;
+            white-space: nowrap;
+        }
+        #imageFile {
+            display: none;
+        }
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px; 
+            margin: 20px auto;
+            border-radius: 15px;
+            border: 4px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            display: none;
+            object-fit: contain;
+            transition: all 0.5s;
+        }
+        
+        /* ------------------------------------- */
+        /* BUTTON STYLING                        */
+        /* ------------------------------------- */
+        button {
+            padding: 15px 35px;
+            font-size: 18px;
+            background-color: #00a87a; 
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        button:hover:not(:disabled) {
+            background-color: #00897b;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+        button:not(:disabled) {
+             animation: pulse 2s infinite; 
+        }
+        button:disabled {
+            background-color: #607d8b;
+            cursor: not-allowed;
+            animation: none;
+        }
+        #message {
+            font-weight: 600;
+            color: #ff8a80; /* Light red for errors */
+        }
+
+        /* ------------------------------------- */
+        /* RESULT SECTION                        */
+        /* ------------------------------------- */
+        .result-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.2); 
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+            opacity: 0; 
+            animation: fadeIn 1s forwards; 
+            text-align: left;
+            border-left: 5px solid #00bcd4; 
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        .result-section h2 {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+            padding-bottom: 15px;
+            color: #ffffff;
+            font-size: 2em;
+            margin-bottom: 25px;
+        }
+        .info-block p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+            padding-left: 10px;
+            border-left: 3px solid #00bcd4; 
+            color: #f0f0f0;
+        }
+        .info-block strong {
+            color: #cfd8dc; 
+            display: inline-block;
+            min-width: 150px;
+        }
+        
+        /* Language Selector Micro-interaction */
+        #languageSelect {
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: 1px solid #00bcd4;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        #languageSelect:hover {
+            background-color: #00bcd4;
+            color: white;
+            box-shadow: 0 0 10px #00bcd4;
+        }
+        
+        /* Maps Link Styling */
+        #mapsLink {
+            display: inline-block;
+            margin-top: 25px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            background-color: #00bcd4;
+            padding: 12px 25px;
+            border-radius: 10px;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+        #mapsLink:hover {
+            background-color: #00838f;
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        hr {
+             border: 0; 
+             height: 1px; 
+             background-image: linear-gradient(to right, rgba(0, 188, 212, 0), rgba(0, 188, 212, 0.5), rgba(0, 188, 212, 0)); 
+             margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🌍 AI Tourist Guide</h1>
+    <p>Upload a photo of any monument or tourist spot to get instant information.</p>
+    
+    <hr>
+
+    <label for="imageFile" class="upload-section">
+        <span>Click here to <strong>Select or Drag</strong> an Image</span>
+        <input type="file" id="imageFile" accept="image/*" required>
+    </label>
+    
+    <img id="imagePreview" src="#" alt="Image Preview">
+    
+    <button id="uploadButton" disabled>Identify Monument</button>
+    <p id="message" style="margin-top: 15px;"></p>
+
+    <div class="result-section" id="resultSection">
+        <h2>✨ AI Analysis Result</h2>
+        <div class="info-block">
+            <p><strong>Name of the Monument:</strong> <span id="monumentName">...</span></p>
+            <p><strong>Language:</strong> 
+                <select id="languageSelect" onchange="changeLanguage()">
+                    <option value="EN">English</option>
+                    <option value="HI">Hindi</option>
+                    <option value="OD">Odia</option>
+                    <option value="TE">Telugu</option>
+                </select>
+            </p>
+            <p><strong>Historical Significance:</strong> <span id="historicalInfo">...</span></p>
+            <p><strong>Architectural Details:</strong> <span id="architecturalInfo">...</span></p>
+            <p><strong>Visiting Tips:</strong> <span id="visitingTips">...</span></p>
+            <p>
+                <a id="mapsLink" href="#" target="_blank">
+                    📍 View on Google Maps
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('imageFile');
+    const preview = document.getElementById('imagePreview');
+    const uploadButton = document.getElementById('uploadButton');
+    const message = document.getElementById('message');
+    const resultSection = document.getElementById('resultSection');
+    const langSelect = document.getElementById('languageSelect');
+
+    uploadButton.addEventListener('click', uploadImage);
+
+    let aiData = null; 
+
+    fileInput.addEventListener('change', function() {
+        message.textContent = '';
+        resultSection.style.display = 'none';
+
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                uploadButton.disabled = false;
+                resultSection.style.opacity = 0; // Reset opacity for new fade-in
+            };
+            
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = '#';
+            preview.style.display = 'none';
+            uploadButton.disabled = true;
+        }
+    });
+
+    async function uploadImage() {
+        const file = fileInput.files[0];
+        if (!file) {
+            message.textContent = 'Please select an image first.';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('monument_image', file);
+        
+        message.textContent = 'Identifying monument... Please wait.';
+        uploadButton.disabled = true;
+
+        try {
+            const response = await fetch('/identify', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                // *** CRITICAL ERROR HANDLING FOR UNKNOWN IMAGES (HTTP 400) ***
+                // Catch the error message returned when monument is 'Unknown'
+                const errorData = await response.json();
+                message.textContent = `Error: ${errorData.error}`; // Display the specific error message
+                resultSection.style.display = 'none';
+                return;
+            }
+
+            // Successful identification
+            aiData = await response.json();
+            
+            message.textContent = 'Identification successful!';
+            resultSection.style.display = 'block';
+            
+            // Trigger fade-in (the CSS animation handles the transition)
+            resultSection.style.animation = 'none'; 
+            resultSection.offsetHeight; /* Trigger reflow */
+            resultSection.style.animation = 'fadeIn 1s forwards'; 
+            
+            changeLanguage();
+
+        } catch (error) {
+            console.error('Upload Error:', error);
+            message.textContent = 'A network error occurred during identification. Please try again.';
+            resultSection.style.display = 'none';
+        } finally {
+            uploadButton.disabled = false;
+        }
+    }
+
+    function changeLanguage() {
+        if (!aiData) return;
+
+        const lang = langSelect.value;
+        
+        const langData = aiData[lang];
+
+        // CRITICAL FIX: Use the translated display_name
+        if (langData && langData.display_name) {
+            document.getElementById('monumentName').textContent = langData.display_name;
+        } else {
+            document.getElementById('monumentName').textContent = aiData.name || 'Unknown Monument';
+        }
+        
+        if (langData) {
+            document.getElementById('historicalInfo').textContent = langData.history || 'Information not available.';
+            document.getElementById('architecturalInfo').textContent = langData.arch || 'Information not available.';
+            document.getElementById('visitingTips').textContent = langData.tips || 'Information not available.';
+        } else {
+            document.getElementById('historicalInfo').textContent = 'Translation not available for this language.';
+            document.getElementById('architecturalInfo').textContent = 'Translation not available for this language.';
+            document.getElementById('visitingTips').textContent = 'Translation not available for this language.';
+        }
+        
+        document.getElementById('mapsLink').href = aiData.maps_link || '#';
+    }
+</script>
+
+</body>
+</html>
