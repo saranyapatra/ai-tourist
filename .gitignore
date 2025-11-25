@@ -6,7 +6,7 @@ __pycache__/
 *.pyc
 
 # Ignore the large AI model file
-monument_model.h5
+
 
 # Ignore the raw data folder
 data/
